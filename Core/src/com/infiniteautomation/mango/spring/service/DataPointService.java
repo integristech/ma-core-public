@@ -468,6 +468,10 @@ public class DataPointService extends AbstractVOService<DataPointVO, DataPointDa
             }else {
                 //Validate the point locator
                 def.validate(result, vo, dsvo);
+
+                if (vo.getPointLocator().getDataType() == null && !result.hasContextualMessage("dataType")) {
+                    result.addContextualMessage("dataType", "validate.invalidValueWithAcceptable", DataTypes.formatNames());
+                }
             }
         }
 
@@ -499,11 +503,14 @@ public class DataPointService extends AbstractVOService<DataPointVO, DataPointDa
             if (def == null) {
                 throw new ShouldNeverHappenException("No data source definition for type " + vo.getPointLocator().getDataSourceType());
             } else {
-                //Validate the point locator
-                if (existing.getPointLocator().getDataTypeId() != vo.getPointLocator().getDataTypeId()) {
-                    result.addContextualMessage("dataTypeId", "validate.cantChangeDataType");
-                }
                 def.validate(result, existing, vo, dsvo);
+
+                //Validate the point locator
+                if (existing.getPointLocator().getDataType() != vo.getPointLocator().getDataType()) {
+                    result.addContextualMessage("dataType", "validate.cantChangeDataType");
+                } else if (vo.getPointLocator().getDataType() == null && !result.hasContextualMessage("dataType")) {
+                    result.addContextualMessage("dataType", "validate.invalidValueWithAcceptable", DataTypes.formatNames());
+                }
             }
         }
 
@@ -526,7 +533,7 @@ public class DataPointService extends AbstractVOService<DataPointVO, DataPointDa
             response.addMessage("deviceName", new TranslatableMessage("validate.notLongerThan", 255));
 
         if(vo.getPointLocator() != null){
-            if (vo.getPointLocator().getDataTypeId() == DataTypes.NUMERIC && (vo.getLoggingType() == LoggingTypes.ON_CHANGE ||
+            if (vo.getPointLocator().getDataType() == DataTypes.NUMERIC && (vo.getLoggingType() == LoggingTypes.ON_CHANGE ||
                     vo.getLoggingType() == LoggingTypes.ON_CHANGE_INTERVAL)) {
                 if (vo.getTolerance() < 0)
                     response.addContextualMessage("tolerance", "validate.cannotBeNegative");
@@ -545,10 +552,10 @@ public class DataPointService extends AbstractVOService<DataPointVO, DataPointDa
         if (!DataPointVO.INTERVAL_LOGGING_TYPE_CODES.isValidId(vo.getIntervalLoggingType()))
             response.addContextualMessage("intervalLoggingType", "validate.invalidValue");
 
-        if(vo.getPointLocator().getDataTypeId() == DataTypes.IMAGE || vo.getPointLocator().getDataTypeId() == DataTypes.ALPHANUMERIC ) {
+        if(vo.getPointLocator().getDataType() == DataTypes.IMAGE || vo.getPointLocator().getDataType() == DataTypes.ALPHANUMERIC ) {
             if(vo.getLoggingType() == LoggingTypes.INTERVAL && vo.getIntervalLoggingType() != IntervalLoggingTypes.INSTANT)
                 response.addContextualMessage("intervalLoggingType", "validate.intervalType.incompatible",
-                        DataPointVO.INTERVAL_LOGGING_TYPE_CODES.getCode(vo.getIntervalLoggingType()), DataTypes.CODES.getCode(vo.getPointLocator().getDataTypeId()));
+                        DataPointVO.INTERVAL_LOGGING_TYPE_CODES.getCode(vo.getIntervalLoggingType()), vo.getPointLocator().getDataType());
         }
 
         if(vo.isPurgeOverride()) {
@@ -571,7 +578,7 @@ public class DataPointService extends AbstractVOService<DataPointVO, DataPointDa
             response.addContextualMessage("discardHighLimit", "validate.greaterThanDiscardLow");
         }
 
-        if(vo.getPointLocator().getDataTypeId() != DataTypes.NUMERIC && vo.getPointLocator().getDataTypeId() != DataTypes.MULTISTATE) {
+        if(vo.getPointLocator().getDataType() != DataTypes.NUMERIC && vo.getPointLocator().getDataType() != DataTypes.MULTISTATE) {
             vo.setPreventSetExtremeValues(false);
         }
 
@@ -598,7 +605,7 @@ public class DataPointService extends AbstractVOService<DataPointVO, DataPointDa
         // Check text renderer type
         if (vo.getTextRenderer() != null) {
             ProcessResult contextResult = new ProcessResult();
-            vo.getTextRenderer().validate(contextResult, vo.getPointLocator().getDataTypeId());
+            vo.getTextRenderer().validate(contextResult, vo.getPointLocator().getDataType());
             for (ProcessMessage msg : contextResult.getMessages()) {
                 String contextKey = msg.getContextKey();
                 if (contextKey != null) {
@@ -611,16 +618,16 @@ public class DataPointService extends AbstractVOService<DataPointVO, DataPointDa
         // Check the plot type
         if (!DataPointVO.PLOT_TYPE_CODES.isValidId(vo.getPlotType()))
             response.addContextualMessage("plotType", "validate.invalidValue");
-        if (vo.getPlotType() != PlotTypes.STEP && vo.getPointLocator().getDataTypeId() != DataTypes.NUMERIC)
+        if (vo.getPlotType() != PlotTypes.STEP && vo.getPointLocator().getDataType() != DataTypes.NUMERIC)
             response.addContextualMessage("plotType", "validate.invalidValue");
 
         if(!DataPointVO.SIMPLIFY_TYPE_CODES.isValidId(vo.getSimplifyType()))
             response.addContextualMessage("simplifyType", "validate.invalidValue");
         else if(vo.getSimplifyType() == SimplifyTypes.TARGET && vo.getSimplifyTarget() < 10)
             response.addContextualMessage("simplifyTarget", "validate.greaterThan", 10);
-        else if(vo.getSimplifyType() != SimplifyTypes.NONE && (vo.getPointLocator().getDataTypeId() == DataTypes.ALPHANUMERIC ||
-                vo.getPointLocator().getDataTypeId() == DataTypes.IMAGE))
-            response.addContextualMessage("simplifyType", "validate.cannotSimplifyType", DataTypes.getDataTypeMessage(vo.getPointLocator().getDataTypeId()));
+        else if(vo.getSimplifyType() != SimplifyTypes.NONE && (vo.getPointLocator().getDataType() == DataTypes.ALPHANUMERIC ||
+                vo.getPointLocator().getDataType() == DataTypes.IMAGE))
+            response.addContextualMessage("simplifyType", "validate.cannotSimplifyType", vo.getPointLocator().getDataType().getDescription());
 
         //Validate the unit
         if(vo.getUnit() == null) {
@@ -697,7 +704,7 @@ public class DataPointService extends AbstractVOService<DataPointVO, DataPointDa
      * @return
      */
     private boolean validateRollup(DataPointVO vo) {
-        boolean numeric = vo.getPointLocator().getDataTypeId() == DataTypes.NUMERIC;
+        boolean numeric = vo.getPointLocator().getDataType() == DataTypes.NUMERIC;
         switch(vo.getRollup()) {
             case Rollups.FIRST :
             case Rollups.LAST :

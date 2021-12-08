@@ -32,7 +32,7 @@ public class DataSourceUtils {
 	 * Get a value from string data via pattern matching on group 1
 	 * @param valuePattern
 	 * @param data
-	 * @param dataTypeId
+	 * @param dataType
 	 * @param binary0Value
 	 * @param textRenderer
 	 * @param valueFormat
@@ -40,9 +40,9 @@ public class DataSourceUtils {
 	 * @return
 	 * @throws TranslatableException
 	 */
-	public static DataValue getValue(Pattern valuePattern, String data, int dataTypeId, String binary0Value,
+	public static DataValue getValue(Pattern valuePattern, String data, DataTypes dataType, String binary0Value,
             TextRenderer textRenderer, DecimalFormat valueFormat, String pointName) throws TranslatableException {
-		return getValue(valuePattern, 1, data, dataTypeId, binary0Value,
+		return getValue(valuePattern, 1, data, dataType, binary0Value,
 	            textRenderer, valueFormat, pointName);
     }
 
@@ -51,7 +51,7 @@ public class DataSourceUtils {
 	 * @param valuePattern
 	 * @param group
 	 * @param data
-	 * @param dataTypeId
+	 * @param dataType
 	 * @param binary0Value
 	 * @param textRenderer
 	 * @param valueFormat
@@ -59,7 +59,7 @@ public class DataSourceUtils {
 	 * @return
 	 * @throws TranslatableException
 	 */
-	public static DataValue getValue(Pattern valuePattern, int group, String data, int dataTypeId, String binary0Value,
+	public static DataValue getValue(Pattern valuePattern, int group, String data, DataTypes dataType, String binary0Value,
             TextRenderer textRenderer, DecimalFormat valueFormat, String pointName) throws TranslatableException {
         if (data == null)
             throw new TranslatableException(new TranslatableMessage("event.valueParse.noData", pointName));
@@ -70,7 +70,7 @@ public class DataSourceUtils {
             if (valueStr == null)
                 valueStr = "";
 
-            return getValue(valueStr, dataTypeId, binary0Value, textRenderer, valueFormat, pointName);
+            return getValue(valueStr, dataType, binary0Value, textRenderer, valueFormat, pointName);
         }
 
         throw new NoMatchException(new TranslatableMessage("event.valueParse.noValue", pointName));
@@ -133,7 +133,7 @@ public class DataSourceUtils {
     /**
      * Create Data Value From String
      * @param valueStr
-     * @param dataTypeId
+     * @param dataType
      * @param binary0Value
      * @param textRenderer
      * @param valueFormat
@@ -141,15 +141,15 @@ public class DataSourceUtils {
      * @return
      * @throws TranslatableException
      */
-    public static DataValue getValue(String valueStr, int dataTypeId, String binary0Value, TextRenderer textRenderer,
+    public static DataValue getValue(String valueStr, DataTypes dataType, String binary0Value, TextRenderer textRenderer,
             DecimalFormat valueFormat, String pointName) throws TranslatableException {
-        if (dataTypeId == DataTypes.ALPHANUMERIC)
+        if (dataType == DataTypes.ALPHANUMERIC)
             return new AlphanumericValue(valueStr);
 
-        if (dataTypeId == DataTypes.BINARY)
+        if (dataType == DataTypes.BINARY)
             return new BinaryValue(!valueStr.equals(binary0Value));
 
-        if (dataTypeId == DataTypes.MULTISTATE) {
+        if (dataType == DataTypes.MULTISTATE) {
             if (textRenderer instanceof MultistateRenderer) {
                 List<MultistateValue> multistateValues = ((MultistateRenderer) textRenderer).getMultistateValues();
                 for (MultistateValue multistateValue : multistateValues) {
@@ -169,7 +169,7 @@ public class DataSourceUtils {
             }
         }
 
-        if (dataTypeId == DataTypes.NUMERIC) {
+        if (dataType == DataTypes.NUMERIC) {
             try {
                 if (valueFormat != null)
                     return new NumericValue(valueFormat.parse(valueStr).doubleValue());
