@@ -47,7 +47,7 @@ import com.serotonin.ShouldNeverHappenException;
 import com.serotonin.db.pair.IntStringPair;
 import com.serotonin.io.NullWriter;
 import com.serotonin.m2m2.Common;
-import com.serotonin.m2m2.DataTypes;
+import com.serotonin.m2m2.DataType;
 import com.serotonin.m2m2.db.dao.DataPointDao;
 import com.serotonin.m2m2.db.dao.PointValueDao;
 import com.serotonin.m2m2.i18n.ProcessMessage.Level;
@@ -541,7 +541,7 @@ public class MangoJavaScriptService {
      * @throws ResultTypeException
      * @throws ScriptPermissionsException
      */
-    public void execute(CompiledMangoJavaScript script, long runtime, long timestamp, DataTypes resultDataType) throws ScriptError, ResultTypeException, ScriptPermissionsException {
+    public void execute(CompiledMangoJavaScript script, long runtime, long timestamp, DataType resultDataType) throws ScriptError, ResultTypeException, ScriptPermissionsException {
         try {
             runAs.runAsCallable(script.getPermissionHolder(), () -> {
                 execute(script, runtime, timestamp);
@@ -643,16 +643,16 @@ public class MangoJavaScriptService {
      */
     public AbstractPointWrapper wrapPoint(ScriptEngine engine, IDataPointValueSource point,
             ScriptPointValueSetter setter) {
-        DataTypes dt = point.getDataType();
-        if (dt == DataTypes.BINARY)
+        DataType dt = point.getDataType();
+        if (dt == DataType.BINARY)
             return new BinaryPointWrapper(point, engine, setter);
-        if (dt == DataTypes.MULTISTATE)
+        if (dt == DataType.MULTISTATE)
             return new MultistatePointWrapper(point, engine, setter);
-        if (dt == DataTypes.NUMERIC)
+        if (dt == DataType.NUMERIC)
             return new NumericPointWrapper(point, engine, setter);
-        if (dt == DataTypes.ALPHANUMERIC)
+        if (dt == DataType.ALPHANUMERIC)
             return new AlphanumericPointWrapper(point, engine, setter);
-        if (dt == DataTypes.IMAGE)
+        if (dt == DataType.IMAGE)
             return new ImagePointWrapper(point, engine, setter);
         throw new ShouldNeverHappenException("Unknown data type id: " + point.getDataType());
     }
@@ -751,7 +751,7 @@ public class MangoJavaScriptService {
      * @return
      * @throws ResultTypeException
      */
-    public DataValue coerce(Object input, DataTypes toDataType) throws ResultTypeException {
+    public DataValue coerce(Object input, DataType toDataType) throws ResultTypeException {
         DataValue value;
 
         if(input instanceof DataValue)
@@ -760,13 +760,13 @@ public class MangoJavaScriptService {
             return ((PointValueTime)input).getValue();
 
         if (input == null) {
-            if (toDataType == DataTypes.BINARY)
+            if (toDataType == DataType.BINARY)
                 value = new BinaryValue(false);
-            else if (toDataType == DataTypes.MULTISTATE)
+            else if (toDataType == DataType.MULTISTATE)
                 value = new MultistateValue(0);
-            else if (toDataType == DataTypes.NUMERIC)
+            else if (toDataType == DataType.NUMERIC)
                 value = new NumericValue(0);
-            else if (toDataType == DataTypes.ALPHANUMERIC)
+            else if (toDataType == DataType.ALPHANUMERIC)
                 value = new AlphanumericValue("");
             else
                 value = null;
@@ -778,9 +778,9 @@ public class MangoJavaScriptService {
                         toDataType.getDescription()));
         }
         // See if the type matches.
-        else if (toDataType == DataTypes.BINARY && input instanceof Boolean)
+        else if (toDataType == DataType.BINARY && input instanceof Boolean)
             value = new BinaryValue((Boolean) input);
-        else if (toDataType == DataTypes.MULTISTATE) {
+        else if (toDataType == DataType.MULTISTATE) {
             if (input instanceof Number)
                 value = new MultistateValue(((Number) input).intValue());
             else if (input instanceof String) {
@@ -796,7 +796,7 @@ public class MangoJavaScriptService {
                 throw new ResultTypeException(new TranslatableMessage("event.script.convertError", input,
                         toDataType.getDescription()));
         }
-        else if (toDataType == DataTypes.NUMERIC) {
+        else if (toDataType == DataType.NUMERIC) {
             if (input instanceof Number)
                 value = new NumericValue(((Number) input).doubleValue());
             else if (input instanceof String) {
@@ -812,7 +812,7 @@ public class MangoJavaScriptService {
                 throw new ResultTypeException(new TranslatableMessage("event.script.convertError", input,
                         toDataType.getDescription()));
         }
-        else if (toDataType == DataTypes.ALPHANUMERIC)
+        else if (toDataType == DataType.ALPHANUMERIC)
             value = new AlphanumericValue(input.toString());
         else
             // If not, ditch it.
