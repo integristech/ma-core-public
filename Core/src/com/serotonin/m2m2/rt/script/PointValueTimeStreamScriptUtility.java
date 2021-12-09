@@ -336,7 +336,6 @@ public class PointValueTimeStreamScriptUtility extends ScriptUtility {
                 DataPointStatisticsQuantizer<?> quantizer;
                 switch(vo.getPointLocator().getDataType()) {
                     case ALPHANUMERIC:
-                    case IMAGE:
                         quantizer = new ValueChangeCounterDataPointQuantizer(vo, getBucketCalculator(), this);
                         break;
                     case BINARY:

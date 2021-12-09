@@ -57,7 +57,6 @@ public class RhinoScriptTestData {
 		switch(dataType){
 			case ALPHANUMERIC:
 			case BINARY:
-			case IMAGE:
 			case MULTISTATE:
 			default:
 				throw new ShouldNeverHappenException("Unimplemented");
@@ -95,7 +94,6 @@ public class RhinoScriptTestData {
 		switch(dataType){
 		case ALPHANUMERIC:
 		case BINARY:
-		case IMAGE:
 		case MULTISTATE:
 		default:
 			throw new ShouldNeverHappenException("Unimplemented");
