@@ -1,3 +1,8 @@
+*Version 4.4.0*
+* Drop support for IMAGE data points
+* Delete all data points with IMAGE dataType
+* Delete all data sources of type HTTP_IMAGE
+
 *Version 4.3.0*
 * Adding monitored values to the PointValueDaoSQL to track the number of point values saved (sync and async) per second.
 * Adding a monitored metric for the PublishQueue size.
