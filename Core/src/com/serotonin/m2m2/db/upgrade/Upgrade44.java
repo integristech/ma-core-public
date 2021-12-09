@@ -18,16 +18,22 @@ public class Upgrade44 extends DBUpgrade {
 
     @Override
     protected void upgrade() throws Exception {
-        Field<Integer> dataTypeId = DSL.field("dataTypeId", SQLDataType.INTEGER.nullable(false));
 
         try (var log = new PrintWriter(createUpdateLogOutputStream())) {
             log.printf("Deleting all data points with dataTypeId 5 (IMAGE) and 0 (UNKNOWN)%n");
-
-            int count = create.deleteFrom(DSL.table("dataPoints"))
+            Field<Integer> dataTypeId = DSL.field("dataTypeId", SQLDataType.INTEGER.nullable(false));
+            int deletedPoints = create.deleteFrom(DSL.table("dataPoints"))
                     .where(dataTypeId.in(0, 5))
                     .execute();
+            log.printf("Deleted %d data points%n", deletedPoints);
 
-            log.printf("Deleted %d data points%n", count);
+            // there are no other data sources which support IMAGES data points
+            log.printf("Deleting all HTTP_IMAGE data sources%n");
+            Field<String> dataSourceType = DSL.field("dataSourceType", SQLDataType.VARCHAR(40).nullable(false));
+            int deletedSources = create.deleteFrom(DSL.table("dataSources"))
+                    .where(dataSourceType.eq("HTTP_IMAGE"))
+                    .execute();
+            log.printf("Deleted %d HTTP_IMAGE data sources%n", deletedSources);
         }
     }
 
