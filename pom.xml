@@ -12,7 +12,7 @@
         <springSecurityVersion>5.4.2</springSecurityVersion>
         <log4jVersion>2.15.0</log4jVersion>
         <slf4jVersion>1.8.0-beta4</slf4jVersion>
-        <jacksonVersion>2.12.1</jacksonVersion>
+        <jacksonVersion>2.12.6</jacksonVersion>
         <mangoVersion>4.3.0-SNAPSHOT</mangoVersion>
         <coreApiVersion>${coreVersion.majorVersion}.${coreVersion.minorVersion}</coreApiVersion>
         <noSnapshotVer>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</noSnapshotVer>
